@@ -17,12 +17,20 @@ public class GenerateurQRCodeTest {
 
     private GenerateurQRCode generateur = new GenerateurQRCode();
 
+    /**
+     * Test 1 : l'image du QR code est bien créée.
+     * On vérifie qu'elle existe, qu'elle fait 300 x 300 pixels
+     * et qu'elle contient bien des carrés noirs (sinon ce serait une image vide).
+     */
     @Test
     public void testImageCreee() throws Exception {
         BufferedImage image = generateur.creerImage("Bonjour");
         assertNotNull(image);
         assertEquals(300, image.getWidth());
         assertEquals(300, image.getHeight());
+
+        // le pixel au milieu du carré de repère en haut à gauche doit être noir
+        assertEquals(0xFF000000, image.getRGB(80, 80));
     }
 
     @Test
