@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.nio.file.Files;
 
 import org.junit.jupiter.api.Test;
 
@@ -45,6 +46,11 @@ public class GenerateurQRCodeTest {
         assertThrows(IllegalArgumentException.class, () -> generateur.creerImage(null));
     }
 
+    /**
+     * Test 3 : le fichier PDF est bien créé.
+     * On vérifie que le fichier existe, qu'il n'est pas vide,
+     * et que c'est bien un PDF (un vrai PDF commence toujours par "%PDF").
+     */
     @Test
     public void testPDFCree() throws Exception {
         File fichier = new File("test.pdf");
@@ -52,6 +58,9 @@ public class GenerateurQRCodeTest {
 
         assertTrue(fichier.exists());
         assertTrue(fichier.length() > 0);
+
+        byte[] contenu = Files.readAllBytes(fichier.toPath());
+        assertEquals("%PDF", new String(contenu, 0, 4));
 
         fichier.delete();   // on nettoie après le test
     }
