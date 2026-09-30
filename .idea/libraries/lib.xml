@@ -1,0 +1,23 @@
+<component name="libraryTable">
+  <library name="lib">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/junit-jupiter-engine-5.10.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/slf4j-nop-2.0.17.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/slf4j-api-2.0.17.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jackson-core-2.22.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jackson-databind-2.22.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/junit-platform-engine-1.10.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/zxing-core-javase-3.5.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/junit-jupiter-api-5.10.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/itext-core-9.8.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/junit-platform-launcher-1.10.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jackson-annotations-2.22.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/junit-platform-commons-1.10.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/apiguardian-api-1.1.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/fastdoubleparser-2.0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/opentest4j-1.3.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
