@@ -33,9 +33,16 @@ public class GenerateurQRCodeTest {
         assertEquals(0xFF000000, image.getRGB(80, 80));
     }
 
+    /**
+     * Test 2 : un texte vide est refusé pour l'image.
+     * Texte vide, texte avec seulement des espaces, ou pas de texte du tout (null) :
+     * dans les 3 cas, le modèle doit lancer une IllegalArgumentException.
+     */
     @Test
     public void testTexteVideRefuse() {
         assertThrows(IllegalArgumentException.class, () -> generateur.creerImage(""));
+        assertThrows(IllegalArgumentException.class, () -> generateur.creerImage("   "));
+        assertThrows(IllegalArgumentException.class, () -> generateur.creerImage(null));
     }
 
     @Test
