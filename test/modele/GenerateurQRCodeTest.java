@@ -1,6 +1,7 @@
 package modele;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -65,8 +66,15 @@ public class GenerateurQRCodeTest {
         fichier.delete();   // on nettoie après le test
     }
 
+    /**
+     * Test 4 : un texte vide est refusé pour le PDF.
+     * Le modèle doit lancer une IllegalArgumentException
+     * et surtout ne pas créer de fichier PDF vide.
+     */
     @Test
     public void testPDFTexteVideRefuse() {
-        assertThrows(IllegalArgumentException.class, () -> generateur.creerPDF("", "test.pdf"));
+        File fichier = new File("vide.pdf");
+        assertThrows(IllegalArgumentException.class, () -> generateur.creerPDF("", "vide.pdf"));
+        assertFalse(fichier.exists());
     }
 }
