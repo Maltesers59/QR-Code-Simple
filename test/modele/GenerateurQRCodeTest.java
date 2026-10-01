@@ -101,4 +101,17 @@ public class GenerateurQRCodeTest {
         fichier.delete();   // on nettoie après le test
         image.delete();
     }
+
+    /**
+     * Test 9 : une image qui n'existe pas est refusée, et aucun PDF n'est créé.
+     */
+    @Test
+    public void testImageIntrouvableRefusee() {
+        Projet projet = new Projet("https://www.google.fr", "image_qui_n_existe_pas.png", "Avant le QR code", 150);
+        Profil profil = new Profil("Helvetica", "Noir", 14);
+        File fichier = new File("test_sans_image.pdf");
+
+        assertThrows(IllegalArgumentException.class, () -> generateur.creerPDF(projet, profil, "test_sans_image.pdf"));
+        assertFalse(fichier.exists());
+    }
 }
