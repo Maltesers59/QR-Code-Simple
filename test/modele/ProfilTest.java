@@ -1,8 +1,10 @@
 package modele;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 
@@ -25,5 +27,13 @@ public class ProfilTest {
         assertEquals(18, profilCharge.getTaille());
 
         new File("test.profil").delete();   // on nettoie après le test
+    }
+
+    /**
+     * Test 6 : charger un profil qui n'existe pas lance une erreur.
+     */
+    @Test
+    public void testChargerProfilInexistant() {
+        assertThrows(IOException.class, () -> Profil.charger("profil_qui_n_existe_pas.profil"));
     }
 }
