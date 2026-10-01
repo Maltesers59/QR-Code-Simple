@@ -10,6 +10,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.file.Files;
 
+import javax.imageio.ImageIO;
+
 import org.junit.jupiter.api.Test;
 
 /**
@@ -76,5 +78,27 @@ public class GenerateurQRCodeTest {
         File fichier = new File("vide.pdf");
         assertThrows(IllegalArgumentException.class, () -> generateur.creerPDF("", "vide.pdf"));
         assertFalse(fichier.exists());
+    }
+
+    /**
+     * Test 8 : un PDF personnalisé (police, couleur, taille et image) est bien créé.
+     */
+    @Test
+    public void testPDFPersonnaliseAvecImage() throws Exception {
+        // on fabrique une petite image pour le test (on réutilise un QR code)
+        File image = new File("test_image.png");
+        ImageIO.write(generateur.creerImage("image"), "png", image);
+
+        Projet projet = new Projet("https://www.google.fr", "test_image.png", "Avant le QR code", 150);
+        Profil profil = new Profil("Courier", "Rouge", 16);
+        File fichier = new File("test_perso.pdf");
+        generateur.creerPDF(projet, profil, "test_perso.pdf");
+
+        assertTrue(fichier.exists());
+        byte[] contenu = Files.readAllBytes(fichier.toPath());
+        assertEquals("%PDF", new String(contenu, 0, 4));
+
+        fichier.delete();   // on nettoie après le test
+        image.delete();
     }
 }
