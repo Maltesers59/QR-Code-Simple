@@ -22,15 +22,16 @@ Dans la première partie, j'ai fait le cœur de l'appli :
 
 Dans la deuxième partie, j'ai ajouté plusieurs choses pour rendre l'appli plus complète :
 
-- Personnaliser le PDF : on peut choisir la police (Helvetica, Times, Courier), la couleur (noir, bleu, rouge, vert) et la taille du texte.
+- Personnaliser le PDF : on peut choisir la police (Helvetica, Times, Courier), la couleur (noir, bleu, rouge, vert), la taille du texte et le style (normal, gras, italique ou gras italique).
+- Utiliser sa propre police : avec le bouton "Ma police…", on peut choisir un fichier de police (.ttf ou .otf) sur son PC, et le texte du PDF l'utilise.
 - Un texte libre : en plus du lien, on peut écrire un texte qui s'affiche dans le PDF. Le lien, lui, est seulement dans le QR code.
 - Ajouter une image : on peut choisir une image sur son PC, la placer avant ou après le QR code et choisir sa largeur.
-- Sauvegarder et charger : avec le menu Fichier, on peut sauvegarder son travail et le reprendre plus tard. Un projet contient le contenu (texte, lien, image) et un profil contient le style (police, couleur, taille).
-- Plus d'erreurs gérées : image introuvable, fichier qui n'est pas une image, projet ou profil impossible à charger…
+- Sauvegarder et charger : avec le menu Fichier, on peut sauvegarder son travail et le reprendre plus tard. Un projet contient le contenu (texte, lien, image) et un profil contient le style (police, couleur, taille, style et police perso).
+- Plus d'erreurs gérées : image ou police introuvable, fichier qui n'est pas une image ou une police, projet ou profil impossible à charger…
 
 Pour ça, j'ai créé deux nouvelles classes : Profil et Projet. Elles enregistrent les réglages dans un petit fichier texte grâce à la classe Properties de Java.
 
-J'ai aussi ajouté 7 nouveaux tests, ce qui fait 11 tests au total, et ils passent tous.
+J'ai aussi ajouté 10 nouveaux tests, ce qui fait 14 tests au total, et ils passent tous.
 
 ## 4. Organisation du code (MVC)
 
@@ -54,7 +55,8 @@ Elles sont toutes dans le dossier lib :
 - iText a besoin de plusieurs autres bibliothèques pour marcher, il a fallu toutes les ajouter au projet.
 - ZXing donne une image Java qu'iText ne sait pas lire directement, donc il faut d'abord la convertir en PNG.
 - Windows bloque l'écriture d'un PDF déjà ouvert, donc j'ai prévu un message d'erreur pour ce cas.
-- Il faut vérifier l'image avant de commencer le PDF, sinon on se retrouve avec un PDF à moitié écrit.
+- Il faut vérifier l'image et la police avant de commencer le PDF, sinon on se retrouve avec un PDF à moitié écrit.
+- Les polices de base d'iText existent en 4 versions (normale, grasse, italique, les deux), il faut choisir la bonne. Une police perso n'a qu'une version, donc le gras et l'italique sont simulés par iText.
 
 ## 7. Lancer le projet
 
