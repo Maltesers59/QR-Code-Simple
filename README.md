@@ -1,120 +1,72 @@
-# Compte rendu – TP Java : Générateur de QR Code
+# TP Java – Générateur de QR Code
 
-## 1. Présentation
+## C'est quoi ce projet ?
 
-Ce projet est une application Java qui génère des QR codes.
+Pour ce TP, j'ai fait une petite appli en Java (avec Swing) qui transforme ce que tu tapes en QR code, puis qui le met dans un fichier PDF. Tu peux y mettre du texte, un lien, une adresse mail ou un numéro de téléphone.
 
-L'utilisateur saisit un texte ou un lien dans une fenêtre, puis clique sur **Générer le PDF**. L'application :
+![Fenêtre de l'application](doc/fenetre.png)
 
-1. crée le QR code correspondant au texte ;
-2. l'affiche dans la fenêtre ;
-3. crée un fichier `qrcode.pdf` contenant le QR code ;
-4. ouvre automatiquement ce PDF.
+## Comment ça marche ?
 
-Le projet respecte l'architecture **MVC** (Modèle – Vue – Contrôleur).
+1. On choisit le type (texte, lien, mail ou téléphone).
+2. On tape l'info.
+3. On clique sur **Aperçu** pour voir le QR code.
+4. On clique sur **Générer le PDF…**, on choisit où l'enregistrer, et c'est bon.
 
----
+Le PDF contient un titre, le QR code, ce qu'il y a dedans et la date.
 
-## 2. Réalisation des tâches du sujet
+![Exemple de PDF](doc/exemple-pdf.png)
 
-| Tâche | Réalisation |
-| --- | --- |
-| 1. Interface Java Swing | Fenêtre avec une zone de saisie, un bouton, l'image du QR code et un message |
-| 2. Génération de PDF | Bibliothèque **iText** |
-| 3. Génération de QR codes | Bibliothèque **ZXing** |
-| 4. QR code intégré au PDF | Le PDF contient un titre, le QR code et le texte saisi |
-| 5. Gestion des erreurs | Un message s'affiche au lieu de faire planter l'application |
-| 6. Tests unitaires | 4 tests avec **JUnit 5**, un commit par test |
-| 7. Documentation | Code commenté et ce compte rendu |
+## Comment j'ai organisé le code
 
----
+On devait utiliser le modèle **MVC**, donc j'ai séparé le code en 3 parties :
 
-## 3. Architecture MVC
+- **vue** → `FrmQRCode` : la fenêtre. Elle affiche les choses et envoie les clics au contrôleur, c'est tout.
+- **controleur** → `Controle` : il lance l'appli et fait le lien entre la fenêtre et le modèle.
+- **modele** → là où tout le vrai travail se fait :
+  - `TypeContenu` vérifie ce qu'on a tapé et le met au bon format (par exemple `www.google.fr` devient `https://www.google.fr`, un mail devient `mailto:...`)
+  - `GenerateurQRCode` crée l'image du QR code
+  - `GenerateurPDF` crée le fichier PDF
+  - `QRCodeException` sert à renvoyer des messages d'erreur clairs
 
-Le code est séparé en 3 parties. La Vue et le Modèle ne communiquent jamais directement : tout passe par le Contrôleur.
+## Les bibliothèques utilisées
 
-| Partie | Fichier | Rôle |
-| --- | --- | --- |
-| **Vue** | `vue/FrmQRCode.java` | La fenêtre : elle affiche les éléments et transmet le clic au Contrôleur. Elle ne fait aucun calcul. |
-| **Contrôleur** | `controleur/Controle.java` | Contient le `main`. Il reçoit la demande de la Vue, fait travailler le Modèle, puis indique à la Vue quoi afficher. |
-| **Modèle** | `modele/GenerateurQRCode.java` | Fait le vrai travail : il crée l'image du QR code et le fichier PDF. |
+- **ZXing** pour fabriquer les QR codes
+- **iText** pour créer les PDF (il a besoin de SLF4J et Jackson pour marcher, ils sont aussi dans `lib/`)
+- **JUnit 5** pour les tests
 
-### Déroulement d'un clic sur « Générer le PDF »
+## Les erreurs
 
-1. La Vue récupère le texte saisi et appelle `demandeGenererPDF(texte)` du Contrôleur.
-2. Le Contrôleur appelle `creerPDF(texte, "qrcode.pdf")` du Modèle.
-3. Le Modèle crée l'image du QR code avec ZXing, la convertit en PNG, puis crée le PDF avec iText.
-4. Le Contrôleur demande à la Vue d'afficher l'image et le message de réussite, puis d'ouvrir le PDF.
-5. En cas de problème, le Contrôleur demande à la Vue d'afficher un message d'erreur.
+J'ai fait en sorte que l'appli ne plante jamais. Si quelque chose ne va pas, un message s'affiche pour expliquer le problème, par exemple :
 
----
+- rien n'a été tapé
+- le lien, le mail ou le numéro n'est pas valide
+- le texte est trop long (plus de 1000 caractères)
+- le PDF est déjà ouvert dans un autre logiciel ou protégé en écriture
 
-## 4. Le Modèle en détail
+## Les tests
 
-La classe `GenerateurQRCode` contient deux méthodes.
+J'ai écrit **28 tests unitaires** avec JUnit 5, et ils passent tous. Ils vérifient surtout :
 
-**`creerImage(texte)`**
+- que la saisie est bien vérifiée et formatée
+- que le QR code créé se relit bien et redonne exactement le texte de départ (même avec des accents)
+- que le PDF est bien créé et contient le bon texte
 
-- Elle vérifie que le texte n'est pas vide. Sinon, elle lance une `IllegalArgumentException`.
-- Elle utilise ZXing pour créer un QR code de 300 x 300 pixels et le renvoie sous forme d'image.
+## Lancer le projet
 
-**`creerPDF(texte, fichier)`**
+1. Ouvrir le dossier dans **IntelliJ IDEA**.
+2. Lancer la classe `controleur.Controle`.
+3. Pour les tests : clic droit sur le dossier `test` → **Run 'All Tests'**.
 
-- Elle appelle `creerImage(texte)` pour obtenir le QR code.
-- Elle convertit l'image au format PNG, un format qu'iText sait lire.
-- Elle crée le PDF avec un titre, le QR code et le texte, puis ferme le document pour l'enregistrer.
+## Ce qui m'a posé problème
 
----
+- Faire marcher iText, parce qu'il a besoin de plusieurs autres bibliothèques à côté.
+- Comprendre qu'un QR code ne peut pas contenir un texte infini, d'où la limite à 1000 caractères.
 
-## 5. Bibliothèques utilisées
+## Ce qu'on pourrait ajouter
 
-Java ne sait pas créer de QR code ni de PDF sans aide. Les bibliothèques nécessaires sont dans le dossier `lib/` et déclarées dans le fichier `QRCodeSimple.iml`.
+- Choisir la couleur ou la taille du QR code
+- Ajouter une image ou changer la police dans le PDF
+- Sauvegarder ses réglages pour les retrouver plus tard
 
-| Bibliothèque | Utilité |
-| --- | --- |
-| ZXing 3.5.4 | Création du QR code |
-| iText 9.8.0 | Création du PDF |
-| SLF4J, Jackson, FastDoubleParser | Nécessaires au fonctionnement d'iText |
-| JUnit 5 | Tests unitaires |
-
----
-
-## 6. Gestion des erreurs
-
-| Situation | Message affiché |
-| --- | --- |
-| Le texte est vide (ou ne contient que des espaces) | « Erreur : Le texte est vide. » |
-| Le PDF ne peut pas être créé (par exemple, il est déjà ouvert) | « Erreur : impossible de créer le PDF. Est-il déjà ouvert ? » |
-| Le PDF est créé mais ne peut pas s'ouvrir automatiquement | « PDF créé, mais impossible de l'ouvrir automatiquement. » |
-
-Dans tous les cas, l'application continue de fonctionner.
-
----
-
-## 7. Tests unitaires
-
-Les tests portent sur le Modèle, car c'est lui qui contient le traitement. Ils se trouvent dans `test/modele/GenerateurQRCodeTest.java`.
-
-| Test | Ce qui est vérifié |
-| --- | --- |
-| `testImageCreee` | L'image est créée, mesure 300 x 300 pixels et contient bien du noir |
-| `testTexteVideRefuse` | Un texte vide, composé d'espaces ou `null` est refusé pour l'image |
-| `testPDFCree` | Le fichier PDF est créé, n'est pas vide et commence bien par `%PDF` |
-| `testPDFTexteVideRefuse` | Un texte vide est refusé pour le PDF, et aucun fichier n'est créé |
-
-**Résultat : les 4 tests passent.**
-
----
-
-## 8. Difficultés rencontrées
-
-- **Les dépendances d'iText** : iText a besoin d'autres bibliothèques (SLF4J, Jackson…). Elles doivent toutes être ajoutées au projet.
-- **Le format de l'image** : ZXing produit une image Java (`BufferedImage`) qu'iText ne sait pas lire directement. Il faut d'abord la convertir en PNG.
-- **Le PDF déjà ouvert** : Windows empêche de remplacer un fichier ouvert. Un message d'erreur a été prévu pour ce cas.
-
----
-
-## 9. Lancer le projet
-
-- **Application** : ouvrir le projet dans IntelliJ, puis lancer `controleur.Controle` avec la flèche verte ▶.
-- **Tests** : faire un clic droit sur le dossier `test`, puis **Run 'All Tests'**.
+Pour plus de détails, il y a aussi le [rapport complet](RAPPORT.md).
