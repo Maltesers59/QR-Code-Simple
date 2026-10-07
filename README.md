@@ -1,37 +1,80 @@
-# TP Java – Générateur de QR Code
+# Compte rendu – TP Java : Générateur de QR Code
 
-## Le projet
+## 1. Présentation
 
-C'est une appli Java (Swing) qui crée un QR code à partir d'un lien et le met dans un PDF. Le projet utilise le modèle **MVC**.
+Ce projet est une application Java faite avec **Swing**. Elle permet de créer un QR code à partir d'un lien, puis de le mettre dans un fichier **PDF**. Le PDF s'ouvre tout seul une fois créé.
 
-## Partie 1
+Le TP était en deux parties : d'abord faire une appli qui marche (partie 1), puis l'améliorer en ajoutant de la personnalisation, des images et de la sauvegarde (partie 2).
 
-- Une fenêtre pour écrire un lien
-- Le QR code est créé avec **ZXing**
-- Le PDF est créé avec **iText**, puis il s'ouvre tout seul
-- Si le lien est vide ou si le PDF est déjà ouvert, un message d'erreur s'affiche au lieu de planter
-- 4 tests unitaires avec **JUnit 5**
+Le projet respecte l'architecture **MVC** (Modèle – Vue – Contrôleur), comme demandé.
 
-## Partie 2
+---
 
-- **Style du PDF** : on choisit la police, la couleur et la taille du texte
-- **Texte libre** : on peut écrire un texte qui s'affiche dans le PDF, à part du lien
-- **Image** : on peut ajouter une image, avant ou après le QR code, et choisir sa largeur
-- **Sauvegarde** : le menu Fichier permet de sauvegarder et recharger un projet (texte, lien, image) et un profil (police, couleur, taille)
-- 7 nouveaux tests, donc **11 tests** en tout, et ils passent tous
+## 2. Partie 1 : l'application de base
 
-## Organisation du code (MVC)
+Dans la première partie, j'ai fait le cœur de l'appli :
 
-- **vue** → `FrmQRCode` : la fenêtre
-- **controleur** → `Controle` : fait le lien entre la fenêtre et le modèle
-- **modele** → `GenerateurQRCode` (QR code + PDF), `Profil` (le style), `Projet` (le contenu)
+- **La fenêtre** : une zone pour écrire le lien, un bouton **Générer le PDF**, l'aperçu du QR code et un message en bas pour dire si tout s'est bien passé.
+- **Le QR code** : il est créé avec la bibliothèque **ZXing**, en 300 x 300 pixels.
+- **Le PDF** : il est créé avec la bibliothèque **iText**. Il contient un titre et le QR code.
+- **Les erreurs** : si le lien est vide ou si le PDF est déjà ouvert dans un autre logiciel, un message s'affiche au lieu de faire planter l'appli.
+- **Les tests** : 4 tests unitaires avec **JUnit 5** pour vérifier que l'image et le PDF sont bien créés, et qu'un lien vide est refusé.
 
-## Difficultés
+---
 
-- iText a besoin d'autres bibliothèques pour marcher (SLF4J, Jackson…)
-- L'image du QR code doit être convertie en PNG pour qu'iText puisse la lire
-- Il faut vérifier l'image avant de créer le PDF, sinon le PDF reste à moitié écrit
+## 3. Partie 2 : les améliorations
 
-## Lancer le projet
+Dans la deuxième partie, j'ai ajouté plusieurs choses pour rendre l'appli plus complète :
 
-Ouvrir le projet dans IntelliJ et lancer `controleur.Controle`. Pour les tests : clic droit sur `test` → **Run 'All Tests'**.
+- **Personnaliser le PDF** : on peut choisir la police (Helvetica, Times, Courier), la couleur (noir, bleu, rouge, vert) et la taille du texte.
+- **Un texte libre** : en plus du lien, on peut écrire un texte qui s'affiche dans le PDF. Le lien, lui, est seulement dans le QR code.
+- **Ajouter une image** : on peut choisir une image sur son PC, la placer avant ou après le QR code et choisir sa largeur.
+- **Sauvegarder et charger** : avec le menu **Fichier**, on peut sauvegarder son travail et le reprendre plus tard :
+  - un **projet** = le contenu (texte, lien, image)
+  - un **profil** = le style (police, couleur, taille)
+- **Plus d'erreurs gérées** : image introuvable, fichier qui n'est pas une image, projet ou profil impossible à charger…
+
+Pour ça, j'ai créé deux nouvelles classes : `Profil` et `Projet`. Elles enregistrent les réglages dans un petit fichier texte grâce à la classe `Properties` de Java.
+
+J'ai aussi ajouté **7 nouveaux tests**, ce qui fait **11 tests au total**, et ils passent tous.
+
+---
+
+## 4. Organisation du code (MVC)
+
+Le code est rangé en 3 dossiers. La fenêtre et le modèle ne se parlent jamais directement : tout passe par le contrôleur.
+
+| Dossier | Fichier | À quoi il sert |
+| --- | --- | --- |
+| `vue` | `FrmQRCode` | La fenêtre : elle affiche tout et envoie les clics au contrôleur |
+| `controleur` | `Controle` | Lance l'appli et fait le lien entre la fenêtre et le modèle |
+| `modele` | `GenerateurQRCode` | Crée le QR code et le PDF |
+| `modele` | `Profil` | Le style du PDF (police, couleur, taille) |
+| `modele` | `Projet` | Le contenu du PDF (texte, lien, image) |
+
+---
+
+## 5. Bibliothèques utilisées
+
+Elles sont toutes dans le dossier `lib/` :
+
+- **ZXing** : pour créer les QR codes
+- **iText** : pour créer les PDF
+- **SLF4J, Jackson** : iText en a besoin pour fonctionner
+- **JUnit 5** : pour les tests
+
+---
+
+## 6. Difficultés rencontrées
+
+- **iText** a besoin de plusieurs autres bibliothèques pour marcher, il a fallu toutes les ajouter au projet.
+- **ZXing** donne une image Java qu'iText ne sait pas lire directement, donc il faut d'abord la convertir en PNG.
+- **Le PDF déjà ouvert** : Windows bloque l'écriture d'un fichier ouvert, donc j'ai prévu un message d'erreur pour ce cas.
+- **L'image** : il faut la vérifier avant de commencer le PDF, sinon on se retrouve avec un PDF à moitié écrit.
+
+---
+
+## 7. Lancer le projet
+
+- **L'application** : ouvrir le projet dans IntelliJ, puis lancer `controleur.Controle` avec la flèche verte ▶.
+- **Les tests** : clic droit sur le dossier `test`, puis **Run 'All Tests'**.
