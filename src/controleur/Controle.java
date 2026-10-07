@@ -31,33 +31,33 @@ public class Controle {
     }
 
     /**
-     * Demande de la vue : créer le PDF avec le QR code, le style et l'image choisis.
+     * Demande de la vue : créer le PDF avec le texte, le QR code du lien, le style et l'image choisis.
      */
-    public void demandeGenererPDF(String texte, String image, String position, int largeurImage,
-                                  String police, String couleur, int taille) {
+    public void demandeGenererPDF(String texte, String lien, String image, String position, int largeurImage,
+                                  String police, String couleur, int taille, String style, String fichierPolice) {
         try {
-            Projet projet = new Projet(texte, image, position, largeurImage);
-            Profil profil = new Profil(police, couleur, taille);
+            Projet projet = new Projet(texte, lien, image, position, largeurImage);
+            Profil profil = new Profil(police, couleur, taille, style, fichierPolice);
             generateur.creerPDF(projet, profil, "qrcode.pdf");
 
-            BufferedImage qr = generateur.creerImage(texte);
+            BufferedImage qr = generateur.creerImage(lien);
             frmQRCode.afficheQRCode(qr);
             frmQRCode.afficheMessage("PDF créé : qrcode.pdf (dans le dossier du projet)");
             frmQRCode.ouvrirPDF("qrcode.pdf");
         } catch (IllegalArgumentException e) {
-            frmQRCode.afficheErreur(e.getMessage());   // texte vide, image introuvable...
+            frmQRCode.afficheErreur(e.getMessage());   // lien vide, image ou police introuvable...
         } catch (Exception e) {
             frmQRCode.afficheErreur("Impossible de créer le PDF. Est-il déjà ouvert ?");
         }
     }
 
     /**
-     * Demande de la vue : sauvegarder le projet (texte + image) dans un fichier.
+     * Demande de la vue : sauvegarder le projet (texte, lien et image) dans un fichier.
      */
-    public void demandeSauvegarderProjet(String texte, String image, String position, int largeurImage,
+    public void demandeSauvegarderProjet(String texte, String lien, String image, String position, int largeurImage,
                                          String fichier) {
         try {
-            new Projet(texte, image, position, largeurImage).sauvegarder(fichier);
+            new Projet(texte, lien, image, position, largeurImage).sauvegarder(fichier);
             frmQRCode.afficheMessage("Projet sauvegardé : " + fichier);
         } catch (Exception e) {
             frmQRCode.afficheErreur("Impossible de sauvegarder le projet.");
@@ -70,7 +70,7 @@ public class Controle {
     public void demandeChargerProjet(String fichier) {
         try {
             Projet projet = Projet.charger(fichier);
-            frmQRCode.afficheProjet(projet.getTexte(), projet.getImage(),
+            frmQRCode.afficheProjet(projet.getTexte(), projet.getLien(), projet.getImage(),
                     projet.getPosition(), projet.getLargeurImage());
             frmQRCode.afficheMessage("Projet chargé : " + fichier);
         } catch (Exception e) {
@@ -79,11 +79,12 @@ public class Controle {
     }
 
     /**
-     * Demande de la vue : sauvegarder le profil (police, couleur, taille) dans un fichier.
+     * Demande de la vue : sauvegarder le profil (police, couleur, taille, style, police perso) dans un fichier.
      */
-    public void demandeSauvegarderProfil(String police, String couleur, int taille, String fichier) {
+    public void demandeSauvegarderProfil(String police, String couleur, int taille, String style,
+                                         String fichierPolice, String fichier) {
         try {
-            new Profil(police, couleur, taille).sauvegarder(fichier);
+            new Profil(police, couleur, taille, style, fichierPolice).sauvegarder(fichier);
             frmQRCode.afficheMessage("Profil sauvegardé : " + fichier);
         } catch (Exception e) {
             frmQRCode.afficheErreur("Impossible de sauvegarder le profil.");
@@ -96,7 +97,8 @@ public class Controle {
     public void demandeChargerProfil(String fichier) {
         try {
             Profil profil = Profil.charger(fichier);
-            frmQRCode.afficheProfil(profil.getPolice(), profil.getCouleur(), profil.getTaille());
+            frmQRCode.afficheProfil(profil.getPolice(), profil.getCouleur(), profil.getTaille(),
+                    profil.getStyle(), profil.getFichierPolice());
             frmQRCode.afficheMessage("Profil chargé : " + fichier);
         } catch (Exception e) {
             frmQRCode.afficheErreur("Impossible de charger ce profil. Le fichier est-il correct ?");

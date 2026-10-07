@@ -9,7 +9,8 @@ import java.util.Properties;
 
 /**
  * Un projet = ce que l'utilisateur met dans son PDF :
- * le texte du QR code et, s'il le veut, une image (avec sa position et sa taille).
+ * un texte libre (facultatif), le lien du QR code et, s'il le veut,
+ * une image (avec sa position et sa taille).
  * Il peut être sauvegardé dans un fichier et rechargé plus tard.
  */
 public class Projet {
@@ -18,27 +19,59 @@ public class Projet {
     public static final String[] POSITIONS = { "Avant le QR code", "Après le QR code" };
 
     private String texte;
+    private String lien;
     private String image;
     private String position;
     private int largeurImage;
 
     /**
-     * Crée un projet.
+     * Crée un projet avec un texte libre et un lien pour le QR code.
      *
-     * @param texte        le texte ou le lien du QR code
+     * @param texte        texte libre affiché dans le PDF ("" si pas de texte)
+     * @param lien         le lien (ou texte) mis dans le QR code
      * @param image        chemin de l'image à ajouter ("" si pas d'image)
      * @param position     "Avant le QR code" ou "Après le QR code"
      * @param largeurImage largeur de l'image dans le PDF (ex. 200)
      */
-    public Projet(String texte, String image, String position, int largeurImage) {
-        this.texte = texte;
+    public Projet(String texte, String lien, String image, String position, int largeurImage) {
+        this.texte = texte == null ? "" : texte;
+        this.lien = lien;
         this.image = image;
         this.position = position;
         this.largeurImage = largeurImage;
     }
 
+    /**
+     * Crée un projet sans texte libre : seulement le lien du QR code.
+     *
+     * @param lien         le lien (ou texte) mis dans le QR code
+     * @param image        chemin de l'image à ajouter ("" si pas d'image)
+     * @param position     "Avant le QR code" ou "Après le QR code"
+     * @param largeurImage largeur de l'image dans le PDF (ex. 200)
+     */
+    public Projet(String lien, String image, String position, int largeurImage) {
+        this("", lien, image, position, largeurImage);
+    }
+
+    /**
+     * @return le texte libre affiché dans le PDF ("" s'il n'y en a pas)
+     */
     public String getTexte() {
         return texte;
+    }
+
+    /**
+     * @return le lien (ou texte) mis dans le QR code
+     */
+    public String getLien() {
+        return lien;
+    }
+
+    /**
+     * @return true si l'utilisateur a écrit un texte libre
+     */
+    public boolean aUnTexte() {
+        return !texte.isBlank();
     }
 
     public String getImage() {
@@ -69,6 +102,7 @@ public class Projet {
     public void sauvegarder(String fichier) throws IOException {
         Properties reglages = new Properties();
         reglages.setProperty("texte", texte);
+        reglages.setProperty("lien", lien);
         reglages.setProperty("image", image);
         reglages.setProperty("position", position);
         reglages.setProperty("largeurImage", String.valueOf(largeurImage));
@@ -89,8 +123,16 @@ public class Projet {
         try (Reader lecteur = Files.newBufferedReader(Paths.get(fichier))) {
             reglages.load(lecteur);
         }
+        // anciens fichiers (sans "lien") : le "texte" était le contenu du QR code
+        String texte = reglages.getProperty("texte", "");
+        String lien = reglages.getProperty("lien");
+        if (lien == null) {
+            lien = texte;
+            texte = "";
+        }
         return new Projet(
-                reglages.getProperty("texte", ""),
+                texte,
+                lien,
                 reglages.getProperty("image", ""),
                 reglages.getProperty("position", POSITIONS[1]),
                 Integer.parseInt(reglages.getProperty("largeurImage", "200")));

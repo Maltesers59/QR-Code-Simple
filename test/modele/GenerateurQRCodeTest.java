@@ -14,6 +14,10 @@ import javax.imageio.ImageIO;
 
 import org.junit.jupiter.api.Test;
 
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfReader;
+import com.itextpdf.kernel.pdf.canvas.parser.PdfTextExtractor;
+
 /**
  * Tests unitaires du modèle.
  */
@@ -112,6 +116,72 @@ public class GenerateurQRCodeTest {
         File fichier = new File("test_sans_image.pdf");
 
         assertThrows(IllegalArgumentException.class, () -> generateur.creerPDF(projet, profil, "test_sans_image.pdf"));
+        assertFalse(fichier.exists());
+    }
+
+    /**
+     * Test 10 : le texte libre et le lien sont bien séparés.
+     * Le texte est écrit dans le PDF, le lien est seulement dans le QR code.
+     */
+    @Test
+    public void testTexteEtLienSepares() throws Exception {
+        Projet projet = new Projet("Bienvenue sur mon site", "https://www.google.fr", "", "Après le QR code", 200);
+        Profil profil = new Profil("Helvetica", "Noir", 14);
+        File fichier = new File("test_texte_lien.pdf");
+        generateur.creerPDF(projet, profil, "test_texte_lien.pdf");
+
+        // on relit le texte écrit dans le PDF
+        String texteDuPDF;
+        try (PdfDocument pdf = new PdfDocument(new PdfReader(fichier))) {
+            texteDuPDF = PdfTextExtractor.getTextFromPage(pdf.getFirstPage());
+        }
+        assertTrue(texteDuPDF.contains("Bienvenue sur mon site"));
+        assertFalse(texteDuPDF.contains("https://www.google.fr"));
+
+        fichier.delete();   // on nettoie après le test
+    }
+
+    /**
+     * Test 11 : un lien vide est refusé, même s'il y a un texte libre.
+     */
+    @Test
+    public void testLienVideRefuse() {
+        Projet projet = new Projet("Un texte", "", "", "Après le QR code", 200);
+        Profil profil = new Profil("Helvetica", "Noir", 14);
+        File fichier = new File("test_lien_vide.pdf");
+
+        assertThrows(IllegalArgumentException.class, () -> generateur.creerPDF(projet, profil, "test_lien_vide.pdf"));
+        assertFalse(fichier.exists());
+    }
+
+    /**
+     * Test 13 : un PDF en gras italique est bien créé, avec la bonne version de la police.
+     */
+    @Test
+    public void testPDFGrasItalique() throws Exception {
+        Projet projet = new Projet("Mon texte", "https://www.google.fr", "", "Après le QR code", 200);
+        Profil profil = new Profil("Helvetica", "Bleu", 14, "Gras italique", "");
+        File fichier = new File("test_gras.pdf");
+        generateur.creerPDF(projet, profil, "test_gras.pdf");
+
+        assertTrue(fichier.exists());
+        // le PDF doit utiliser la police Helvetica grasse et italique
+        String contenu = new String(Files.readAllBytes(fichier.toPath()), "ISO-8859-1");
+        assertTrue(contenu.contains("Helvetica-BoldOblique"));
+
+        fichier.delete();   // on nettoie après le test
+    }
+
+    /**
+     * Test 14 : une police perso qui n'existe pas est refusée, et aucun PDF n'est créé.
+     */
+    @Test
+    public void testPolicePersoIntrouvableRefusee() {
+        Projet projet = new Projet("https://www.google.fr", "", "Après le QR code", 200);
+        Profil profil = new Profil("Helvetica", "Noir", 14, "Normal", "police_qui_n_existe_pas.ttf");
+        File fichier = new File("test_sans_police.pdf");
+
+        assertThrows(IllegalArgumentException.class, () -> generateur.creerPDF(projet, profil, "test_sans_police.pdf"));
         assertFalse(fichier.exists());
     }
 }
